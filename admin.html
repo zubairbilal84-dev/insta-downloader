@@ -6,7 +6,7 @@
     <title>SnapSaveInsta - Analytics Admin Dashboard</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background: #f4f6f9; color: #333; }
+        body { background: #f4f6f9; color: #333; display: none; } /* Hidden until auth */
         header { background: #1e293b; color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; }
         header h1 { font-size: 22px; }
         .refresh-btn { background: #3b82f6; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; }
@@ -131,6 +131,23 @@
     </div>
 
     <script>
+        // Admin Authentication Check
+        const ADMIN_ID = "mohali0990";
+        const ADMIN_PASS = "mohmmadali@098";
+
+        const inputId = prompt("Enter Admin ID:");
+        const inputPass = prompt("Enter Admin Password:");
+
+        if (inputId !== ADMIN_ID || inputPass !== ADMIN_PASS) {
+            alert("Access Denied! Incorrect Admin Credentials.");
+            document.body.style.display = "block";
+            document.body.innerHTML = "<h1 style='text-align:center; margin-top:100px; color:red;'>Access Denied! Unauthorized User.</h1>";
+        } else {
+            document.body.style.display = "block";
+            fetchDashboardData();
+            setInterval(fetchDashboardData, 30000); // Refresh every 30 seconds
+        }
+
         async function fetchDashboardData() {
             try {
                 const res = await fetch('/api/admin/stats');
@@ -182,9 +199,6 @@
                 console.error("Dashboard Error:", err);
             }
         }
-
-        fetchDashboardData();
-        setInterval(fetchDashboardData, 30000); // Refresh every 30 seconds
     </script>
 </body>
 </html>

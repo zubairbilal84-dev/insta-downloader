@@ -6,6 +6,9 @@
     <title>SnapSaveInsta - Download Instagram Videos, Reels, Stories & Photos</title>
     <!-- Cloudflare Turnstile Anti-Bot Script -->
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    
+    <!-- PASTE YOUR ADSTERRA POPUNDER / DIRECT SCRIPT HERE IN HEAD IF YOU HAVE ONE -->
+
     <style>
         :root { --primary: #e1306c; --primary-dark: #c12e61; --secondary: #28a745; --bg: #f8f9fa; --text: #333; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -50,7 +53,7 @@
         button.btn-download:hover { background: var(--primary-dark); }
 
         /* Cloudflare Turnstile Box */
-        .turnstile-wrapper { display: flex; justify-content: center; margin: 12px 0; }
+        .turnstile-wrapper { display: flex; justify-content: center; margin: 15px 0; }
 
         @media (max-width: 500px) {
             button.btn-download { max-width: 100%; }
@@ -130,9 +133,9 @@
         </div>
     </div>
 
-    <!-- ADSTERRA AD SPOT 2: BELOW DOWNLOADER (300x250 or Native) -->
+    <!-- ADSTERRA AD SPOT 2: BELOW DOWNLOAD CARD (300x250 or Native Ad) -->
     <div style="text-align: center; margin: 20px 0;">
-        <!-- PASTE YOUR ADSTERRA BANNER CODE HERE -->
+        <!-- PASTE YOUR ADSTERRA NATIVE/BANNER CODE HERE -->
     </div>
 
     <div class="container">
@@ -162,7 +165,7 @@
             <div class="step-box">
                 <div class="step-num">2</div>
                 <h4>Paste Link</h4>
-                <p>Paste the copied link into the input box above and complete the quick verification.</p>
+                <p>Paste the copied link into the input box above and complete the Cloudflare verification.</p>
             </div>
             <div class="step-box">
                 <div class="step-num">3</div>
@@ -180,6 +183,11 @@
             <h4>Can I download videos from private Instagram accounts?</h4>
             <p>No, due to Instagram privacy policies, only content from public Instagram profiles can be downloaded.</p>
         </div>
+    </div>
+
+    <!-- ADSTERRA AD SPOT 3: FOOTER BANNER -->
+    <div style="text-align: center; margin: 30px 0;">
+        <!-- PASTE YOUR ADSTERRA FOOTER BANNER CODE HERE -->
     </div>
 
     <footer>
@@ -205,12 +213,17 @@
             const urlInput = document.getElementById('urlInput').value.trim();
             const resultDiv = document.getElementById('result');
 
-            // Turnstile Token
+            // Fetch Turnstile Token
             const turnstileResponse = document.querySelector('[name="cf-turnstile-response"]')?.value;
 
             if(!urlInput || !urlInput.includes('instagram.com')) { 
                 resultDiv.innerHTML = '<p style="color:red; margin-top:15px; font-weight:bold;">Please paste a valid Instagram URL!</p>'; 
                 return; 
+            }
+
+            if(!turnstileResponse) {
+                resultDiv.innerHTML = '<p style="color:red; margin-top:15px; font-weight:bold;">Please complete Cloudflare verification below!</p>'; 
+                return;
             }
             
             resultDiv.innerHTML = '<p style="margin-top:15px; font-weight:bold; color:#555;">Processing... Please wait.</p>';
