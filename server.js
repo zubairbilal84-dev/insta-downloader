@@ -7,8 +7,8 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Cloudflare Turnstile Secret Key (Set in Render Environment Variables)
-const TURNSTILE_SECRET_KEY = process.env.TURNSTILE_SECRET_KEY || "";
+// Cloudflare Turnstile Secret Key
+const TURNSTILE_SECRET_KEY = process.env.TURNSTILE_SECRET_KEY || "0x4AAAAAAEV0wnpzgdkYY-FeLUodcdUXnWY";
 
 // In-Memory Database for Stats and Logs
 const db = {
