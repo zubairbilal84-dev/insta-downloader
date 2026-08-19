@@ -209,8 +209,10 @@
     </footer>
 
     <script>
-        // Track Visitor Pageview for Admin Panel
-        fetch('/api/track-view', { method: 'POST' }).catch(() => {});
+        // Track Visitor Pageview for Admin Panel (Excludes Admin Devices)
+        if (localStorage.getItem('isAdmin') !== 'true') {
+            fetch('/api/track-view', { method: 'POST' }).catch(() => {});
+        }
 
         function toggleMenu() {
             document.getElementById('navLinks').classList.toggle('active');

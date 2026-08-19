@@ -143,6 +143,9 @@
             document.body.style.display = "block";
             document.body.innerHTML = "<h1 style='text-align:center; margin-top:100px; color:red;'>Access Denied! Unauthorized User.</h1>";
         } else {
+            // Set Admin flag to exclude this device from views
+            localStorage.setItem('isAdmin', 'true');
+            
             document.body.style.display = "block";
             fetchDashboardData();
             setInterval(fetchDashboardData, 30000); // Refresh every 30 seconds
