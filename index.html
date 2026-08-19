@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SnapSaveInsta - Download Instagram Videos, Reels, Stories & Photos</title>
+    <!-- Cloudflare Turnstile Anti-Bot Script -->
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <style>
+        :root { --primary: #e1306c; --primary-dark: #c12e61; --secondary: #28a745; --bg: #f8f9fa; --text: #333; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--bg); color: var(--text); line-height: 1.6; }
+
+        header { background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100; }
+        .nav-container { max-width: 1100px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; }
+        .logo { font-size: 24px; font-weight: 800; color: var(--primary); text-decoration: none; }
+        
+        .nav-links { display: flex; gap: 20px; }
+        .nav-links a { text-decoration: none; color: #555; font-weight: 600; transition: color 0.3s; }
+        .nav-links a:hover { color: var(--primary); }
+
+        .menu-toggle { display: none; flex-direction: column; cursor: pointer; gap: 5px; }
+        .menu-toggle span { width: 25px; height: 3px; background: #333; border-radius: 2px; }
+
+        @media (max-width: 768px) {
+            .menu-toggle { display: flex; }
+            .nav-links { display: none; flex-direction: column; position: absolute; top: 60px; left: 0; width: 100%; background: white; box-shadow: 0 4px 10px rgba(0,0,0,0.1); padding: 15px 20px; gap: 15px; }
+            .nav-links.active { display: flex; }
+        }
+
+        .hero { background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045); color: white; text-align: center; padding: 50px 20px 70px; }
+        .hero h1 { font-size: 36px; margin-bottom: 10px; font-weight: 800; }
+        .hero p { font-size: 18px; margin-bottom: 20px; opacity: 0.95; }
+
+        /* Adsterra Header Banner Container */
+        .ad-container { text-align: center; margin: 15px auto; max-width: 728px; min-height: 90px; }
+
+        .card-container { max-width: 700px; margin: -40px auto 40px; padding: 0 20px; position: relative; z-index: 10; }
+        .card { background: white; padding: 30px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.12); text-align: center; }
+        
+        .tabs { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+        .tab-btn { padding: 8px 18px; border: 1px solid #ddd; background: white; border-radius: 20px; cursor: pointer; font-weight: 600; color: #555; font-size: 14px; transition: all 0.3s ease; }
+        .tab-btn:hover { border-color: var(--primary); color: var(--primary); }
+        .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        .input-group { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; }
+        input[type="text"] { flex: 1; min-width: 250px; padding: 14px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 15px; outline: none; }
+        input[type="text"]:focus { border-color: var(--primary); }
+        button.btn-download { padding: 14px 28px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; transition: background 0.3s; width: 100%; max-width: 150px; }
+        button.btn-download:hover { background: var(--primary-dark); }
+
+        /* Cloudflare Turnstile Box */
+        .turnstile-wrapper { display: flex; justify-content: center; margin: 12px 0; }
+
+        @media (max-width: 500px) {
+            button.btn-download { max-width: 100%; }
+        }
+
+        #result { margin-top: 20px; }
+        .quality-box { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-top: 15px; }
+        .dl-btn { display: block; padding: 12px; background: var(--secondary); color: white; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 14px; text-align: center; }
+        .dl-btn:hover { background: #218838; }
+
+        .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+        .section-title { text-align: center; font-size: 28px; margin: 40px 0 20px; color: #222; }
+
+        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; }
+        .feature-card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); border-top: 4px solid var(--primary); }
+        .feature-card h3 { font-size: 20px; margin-bottom: 10px; color: #222; }
+
+        .steps-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+        .step-box { background: white; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.04); }
+        .step-num { width: 40px; height: 40px; background: var(--primary); color: white; font-weight: bold; font-size: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; }
+
+        .faq-item { background: white; padding: 20px; border-radius: 8px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+        .faq-item h4 { font-size: 17px; margin-bottom: 8px; color: #222; }
+
+        footer { background: #1a1a1a; color: #aaa; text-align: center; padding: 30px 20px; font-size: 14px; margin-top: 50px; }
+        footer a { color: #fff; text-decoration: none; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="nav-container">
+            <a href="/" class="logo">SnapSaveInsta</a>
+            <div class="menu-toggle" onclick="toggleMenu()">
+                <span></span><span></span><span></span>
+            </div>
+            <nav class="nav-links" id="navLinks">
+                <a href="#">Home</a>
+                <a href="#features">Features</a>
+                <a href="#how-to">How To Download</a>
+                <a href="#faq">FAQ</a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <h1 id="heroHeading">Instagram Reels Downloader</h1>
+        <p>Download Instagram Videos, Reels, Stories, Photos & IGTV in High Quality for Free</p>
+
+        <!-- ADSTERRA AD SPOT 1: TOP BANNER (728x90) -->
+        <div class="ad-container">
+            <!-- PASTE YOUR ADSTERRA BANNER CODE HERE -->
+        </div>
+    </section>
+
+    <div class="card-container">
+        <div class="card">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="selectTab(this, 'Reels', 'Paste Instagram Reel link here...')">Reels</button>
+                <button class="tab-btn" onclick="selectTab(this, 'Video', 'Paste Instagram Video link here...')">Video</button>
+                <button class="tab-btn" onclick="selectTab(this, 'Photo', 'Paste Instagram Photo link here...')">Photo</button>
+                <button class="tab-btn" onclick="selectTab(this, 'Story', 'Paste Instagram Story link here...')">Story</button>
+                <button class="tab-btn" onclick="selectTab(this, 'IGTV', 'Paste Instagram IGTV link here...')">IGTV</button>
+            </div>
+
+            <div class="input-group">
+                <input type="text" id="urlInput" placeholder="Paste Instagram Reel link here...">
+                <button class="btn-download" onclick="getDownloadLink()">Download</button>
+            </div>
+
+            <!-- Cloudflare Turnstile Bot Protection Widget -->
+            <div class="turnstile-wrapper">
+                <div class="cf-turnstile" data-sitekey="0x4AAAAAAAx-YOUR_CLOUDFLARE_SITE_KEY" data-theme="light"></div>
+            </div>
+
+            <div id="result"></div>
+        </div>
+    </div>
+
+    <!-- ADSTERRA AD SPOT 2: BELOW DOWNLOADER (300x250 or Native) -->
+    <div style="text-align: center; margin: 20px 0;">
+        <!-- PASTE YOUR ADSTERRA BANNER CODE HERE -->
+    </div>
+
+    <div class="container">
+        <h2 class="section-title" id="features">Features of SnapSaveInsta</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <h3>⚡ High Speed Downloading</h3>
+                <p>Lightning-fast servers ensure instant video retrieval without any waiting time.</p>
+            </div>
+            <div class="feature-card">
+                <h3>🎯 Full HD Quality</h3>
+                <p>Download original high-definition videos up to 1080p resolution without quality loss.</p>
+            </div>
+            <div class="feature-card">
+                <h3>🔒 100% Safe & Bot Protected</h3>
+                <p>Protected with Cloudflare security. Safe, fast, free, and privacy-focused.</p>
+            </div>
+        </div>
+
+        <h2 class="section-title" id="how-to">How to Download Instagram Content?</h2>
+        <div class="steps-container">
+            <div class="step-box">
+                <div class="step-num">1</div>
+                <h4>Copy URL</h4>
+                <p>Open Instagram and copy the link of the Reel, Video, or Photo you wish to download.</p>
+            </div>
+            <div class="step-box">
+                <div class="step-num">2</div>
+                <h4>Paste Link</h4>
+                <p>Paste the copied link into the input box above and complete the quick verification.</p>
+            </div>
+            <div class="step-box">
+                <div class="step-num">3</div>
+                <h4>Save File</h4>
+                <p>Select your desired video quality resolution and save the video directly to your device.</p>
+            </div>
+        </div>
+
+        <h2 class="section-title" id="faq">Frequently Asked Questions</h2>
+        <div class="faq-item">
+            <h4>Is this tool completely free to use?</h4>
+            <p>Yes, SnapSaveInsta is 100% free with no registration or subscription required.</p>
+        </div>
+        <div class="faq-item">
+            <h4>Can I download videos from private Instagram accounts?</h4>
+            <p>No, due to Instagram privacy policies, only content from public Instagram profiles can be downloaded.</p>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 SnapSaveInsta. All Rights Reserved. | <a href="/admin.html" target="_blank">Admin Dashboard</a></p>
+    </footer>
+
+    <script>
+        // Track Visitor Pageview for Admin Panel
+        fetch('/api/track-view', { method: 'POST' }).catch(() => {});
+
+        function toggleMenu() {
+            document.getElementById('navLinks').classList.toggle('active');
+        }
+
+        function selectTab(element, type, placeholderText) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            element.classList.add('active');
+            document.getElementById('urlInput').placeholder = placeholderText;
+            document.getElementById('heroHeading').innerText = `Instagram ${type} Downloader`;
+        }
+
+        async function getDownloadLink() {
+            const urlInput = document.getElementById('urlInput').value.trim();
+            const resultDiv = document.getElementById('result');
+
+            // Turnstile Token
+            const turnstileResponse = document.querySelector('[name="cf-turnstile-response"]')?.value;
+
+            if(!urlInput || !urlInput.includes('instagram.com')) { 
+                resultDiv.innerHTML = '<p style="color:red; margin-top:15px; font-weight:bold;">Please paste a valid Instagram URL!</p>'; 
+                return; 
+            }
+            
+            resultDiv.innerHTML = '<p style="margin-top:15px; font-weight:bold; color:#555;">Processing... Please wait.</p>';
+
+            try {
+                const res = await fetch('/api/download', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: urlInput, turnstileToken: turnstileResponse })
+                });
+                const data = await res.json();
+
+                if(data.error) {
+                    resultDiv.innerHTML = `<p style="color:red; margin-top:15px; font-weight:bold;">${data.error}</p>`;
+                    return;
+                }
+
+                let videoUrl = null;
+                if (data && typeof data.url === 'string' && !data.url.includes('rapidapi.com')) videoUrl = data.url;
+                else if (data && typeof data.media === 'string' && !data.media.includes('rapidapi.com')) videoUrl = data.media;
+                else if (data && Array.isArray(data.media) && data.media.length > 0) videoUrl = data.media[0].url || data.media[0];
+                else if (data && Array.isArray(data.result) && data.result.length > 0) videoUrl = data.result[0].url || data.result[0];
+
+                if(videoUrl && typeof videoUrl === 'string' && videoUrl.startsWith('http') && !videoUrl.includes('rapidapi.com')) {
+                    const streamUrl = `/api/stream?url=${encodeURIComponent(videoUrl)}`;
+                    const encodedUrl = encodeURIComponent(videoUrl);
+                    const encodedInstaUrl = encodeURIComponent(urlInput);
+
+                    const dl1080 = `/api/proxy-download?url=${encodedUrl}&quality=1080p&instaUrl=${encodedInstaUrl}`;
+                    const dl720  = `/api/proxy-download?url=${encodedUrl}&quality=720p&instaUrl=${encodedInstaUrl}`;
+                    const dl480  = `/api/proxy-download?url=${encodedUrl}&quality=480p&instaUrl=${encodedInstaUrl}`;
+                    const dl360  = `/api/proxy-download?url=${encodedUrl}&quality=360p&instaUrl=${encodedInstaUrl}`;
+
+                    resultDiv.innerHTML = `
+                        <video src="${streamUrl}" controls autoplay style="width:100%; border-radius:8px; margin-top:15px; background:#000;"></video>
+                        <p style="margin: 15px 0 5px; font-weight: bold; color: #333;">Select Download Quality:</p>
+                        <div class="quality-box">
+                            <div><a href="${dl1080}" class="dl-btn">Download 1080p</a></div>
+                            <div><a href="${dl720}" class="dl-btn">Download 720p</a></div>
+                            <div><a href="${dl480}" class="dl-btn">Download 480p</a></div>
+                            <div><a href="${dl360}" class="dl-btn">Download 360p</a></div>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = '<p style="color:red; margin-top:15px; font-weight:bold;">Unable to fetch video. Please check the public Instagram link.</p>';
+                }
+            } catch(err) {
+                resultDiv.innerHTML = '<p style="color:red; margin-top:15px; font-weight:bold;">Server Error! Please try again later.</p>';
+            }
+        }
+    </script>
+</body>
+</html>
