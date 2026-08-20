@@ -15,6 +15,21 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: var(--bg); color: var(--text); line-height: 1.6; }
 
+        /* Initial Page Load Turnstile Banner */
+        #turnstileOverlay {
+            background: #ffffff;
+            border-bottom: 2px solid #e0e0e0;
+            padding: 12px 20px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            position: relative;
+            z-index: 1000;
+        }
+
         header { background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100; }
         .nav-container { max-width: 1100px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; }
         .logo { font-size: 24px; font-weight: 800; color: var(--primary); text-decoration: none; }
@@ -36,7 +51,6 @@
         .hero h1 { font-size: 36px; margin-bottom: 10px; font-weight: 800; }
         .hero p { font-size: 18px; margin-bottom: 20px; opacity: 0.95; }
 
-        /* Adsterra Header Banner Container */
         .ad-container { text-align: center; margin: 15px auto; max-width: 728px; min-height: 90px; }
 
         .card-container { max-width: 700px; margin: -40px auto 40px; padding: 0 20px; position: relative; z-index: 10; }
@@ -50,14 +64,11 @@
         .input-group { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; }
         input[type="text"] { flex: 1; min-width: 250px; padding: 14px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 15px; outline: none; }
         input[type="text"]:focus { border-color: var(--primary); }
-        button.btn-download { padding: 14px 28px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; transition: background 0.3s; width: 100%; max-width: 150px; }
-        button.btn-download:hover { background: var(--primary-dark); }
-
-        /* Cloudflare Turnstile Box */
-        .turnstile-wrapper { display: flex; justify-content: center; margin: 15px 0; }
+        button.btn-fetch { padding: 14px 28px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; transition: background 0.3s; width: 100%; max-width: 160px; }
+        button.btn-fetch:hover { background: var(--primary-dark); }
 
         @media (max-width: 500px) {
-            button.btn-download { max-width: 100%; }
+            button.btn-fetch { max-width: 100%; }
         }
 
         #result { margin-top: 20px; }
@@ -85,6 +96,12 @@
 </head>
 <body>
 
+    <!-- On Page Load Turnstile Verification Banner -->
+    <div id="turnstileOverlay">
+        <p style="margin-bottom: 6px; font-size: 14px; font-weight: 600; color: #555;">Completing Security Check...</p>
+        <div class="cf-turnstile" data-sitekey="0x4AAAAAAEV0wmFT4zuR-V4R" data-callback="onTurnstileSuccess" data-theme="light"></div>
+    </div>
+
     <header>
         <div class="nav-container">
             <a href="/" class="logo">SnapSaveInsta</a>
@@ -104,7 +121,7 @@
         <h1 id="heroHeading">Instagram Reels Downloader</h1>
         <p>Download Instagram Videos, Reels, Stories, Photos & IGTV in High Quality for Free</p>
 
-        <!-- ADSTERRA AD SPOT 1: TOP BANNER (728x90) -->
+        <!-- ADSTERRA AD SPOT 1 -->
         <div class="ad-container">
             <script type="text/javascript">
                 atOptions = {
@@ -131,19 +148,14 @@
 
             <div class="input-group">
                 <input type="text" id="urlInput" placeholder="Paste Instagram Reel link here...">
-                <button class="btn-download" onclick="getDownloadLink()">Download</button>
-            </div>
-
-            <!-- Cloudflare Turnstile Bot Protection Widget -->
-            <div class="turnstile-wrapper">
-                <div class="cf-turnstile" data-sitekey="0x4AAAAAAEV0wmFT4zuR-V4R" data-theme="light"></div>
+                <button class="btn-fetch" onclick="fetchVideo()">Fetch Video</button>
             </div>
 
             <div id="result"></div>
         </div>
     </div>
 
-    <!-- ADSTERRA AD SPOT 2: BELOW DOWNLOAD CARD -->
+    <!-- ADSTERRA AD SPOT 2 -->
     <div style="text-align: center; margin: 20px 0;">
         <script type="text/javascript">
             atOptions = {
@@ -183,8 +195,8 @@
             </div>
             <div class="step-box">
                 <div class="step-num">2</div>
-                <h4>Paste Link</h4>
-                <p>Paste the copied link into the input box above and complete the Cloudflare verification.</p>
+                <h4>Paste & Fetch</h4>
+                <p>Paste the copied link into the input box above and click 'Fetch Video'.</p>
             </div>
             <div class="step-box">
                 <div class="step-num">3</div>
@@ -209,7 +221,17 @@
     </footer>
 
     <script>
-        // Track Visitor Pageview for Admin Panel (Excludes Admin Devices)
+        let currentTurnstileToken = '';
+
+        // Verification successful hone par turnstile overlay chhup jayega
+        function onTurnstileSuccess(token) {
+            currentTurnstileToken = token;
+            const overlay = document.getElementById('turnstileOverlay');
+            if (overlay) {
+                overlay.style.display = 'none';
+            }
+        }
+
         if (localStorage.getItem('isAdmin') !== 'true') {
             fetch('/api/track-view', { method: 'POST' }).catch(() => {});
         }
@@ -225,37 +247,24 @@
             document.getElementById('heroHeading').innerText = `Instagram ${type} Downloader`;
         }
 
-        async function getDownloadLink() {
+        async function fetchVideo() {
             const urlInput = document.getElementById('urlInput').value.trim();
             const resultDiv = document.getElementById('result');
-
-            // Fetch Turnstile Token
-            const turnstileResponse = document.querySelector('[name="cf-turnstile-response"]')?.value;
 
             if(!urlInput || !urlInput.includes('instagram.com')) { 
                 resultDiv.innerHTML = '<p style="color:red; margin-top:15px; font-weight:bold;">Please paste a valid Instagram URL!</p>'; 
                 return; 
             }
 
-            if(!turnstileResponse) {
-                resultDiv.innerHTML = '<p style="color:red; margin-top:15px; font-weight:bold;">Please complete Cloudflare verification below!</p>'; 
-                return;
-            }
-            
-            resultDiv.innerHTML = '<p style="margin-top:15px; font-weight:bold; color:#555;">Processing... Please wait.</p>';
+            resultDiv.innerHTML = '<p style="margin-top:15px; font-weight:bold; color:#555;">Fetching video details... Please wait.</p>';
 
             try {
                 const res = await fetch('/api/download', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ url: urlInput, turnstileToken: turnstileResponse })
+                    body: JSON.stringify({ url: urlInput, turnstileToken: currentTurnstileToken })
                 });
                 const data = await res.json();
-
-                // Reset Turnstile token after verification attempt
-                if (window.turnstile) {
-                    window.turnstile.reset();
-                }
 
                 if(data.error) {
                     resultDiv.innerHTML = `<p style="color:red; margin-top:15px; font-weight:bold;">${data.error}</p>`;
@@ -280,7 +289,7 @@
 
                     resultDiv.innerHTML = `
                         <video src="${streamUrl}" controls autoplay style="width:100%; border-radius:8px; margin-top:15px; background:#000;"></video>
-                        <p style="margin: 15px 0 5px; font-weight: bold; color: #333;">Select Download Quality:</p>
+                        <p style="margin: 15px 0 5px; font-weight: bold; color: #333;">Select Video Quality to Download:</p>
                         <div class="quality-box">
                             <div><a href="${dl1080}" class="dl-btn">Download 1080p</a></div>
                             <div><a href="${dl720}" class="dl-btn">Download 720p</a></div>
@@ -292,7 +301,6 @@
                     resultDiv.innerHTML = '<p style="color:red; margin-top:15px; font-weight:bold;">Unable to fetch video. Please check the public Instagram link.</p>';
                 }
             } catch(err) {
-                if (window.turnstile) window.turnstile.reset();
                 resultDiv.innerHTML = '<p style="color:red; margin-top:15px; font-weight:bold;">Server Error! Please try again later.</p>';
             }
         }

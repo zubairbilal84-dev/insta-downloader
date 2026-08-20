@@ -22,11 +22,11 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '/')));
 
-// Rate Limiter: Max 5 download requests per minute per IP
+// Rate Limiter: Max 10 download requests per minute per IP
 const apiLimiter = rateLimit({
     windowMs: 1 * 60 * 1000,
-    max: 5,
-    message: { error: "Too many download requests. Please wait 1 minute." },
+    max: 10,
+    message: { error: "Too many requests. Please wait 1 minute." },
     standardHeaders: true,
     legacyHeaders: false,
 });
@@ -48,36 +48,13 @@ app.post('/api/track-view', (req, res) => {
     res.json({ status: 'ok' });
 });
 
-// Cloudflare Turnstile Token Verification
-async function verifyTurnstile(token, ip) {
-    if(!token) return false;
-    try {
-        const res = await axios.post('https://challenges.cloudflare.com/turnstile/v0/siteverify', new URLSearchParams({
-            secret: TURNSTILE_SECRET_KEY,
-            response: token,
-            remoteip: ip
-        }));
-        return res.data.success;
-    } catch(err) {
-        console.error("Turnstile Verification Error:", err.message);
-        return false;
-    }
-}
-
 // Download API Endpoint
 app.post('/api/download', async (req, res) => {
-    const { url, turnstileToken } = req.body;
+    const { url } = req.body;
     const clientIp = req.headers['cf-connecting-ip'] || req.headers['x-forwarded-for'] || req.socket.remoteAddress;
 
     if (!url || !url.includes('instagram.com')) {
         return res.status(400).json({ error: "Invalid Instagram URL provided." });
-    }
-
-    if (TURNSTILE_SECRET_KEY) {
-        const isValidHuman = await verifyTurnstile(turnstileToken, clientIp);
-        if (!isValidHuman) {
-            return res.status(403).json({ error: "Security check failed. Please complete Turnstile verification." });
-        }
     }
 
     try {
@@ -129,7 +106,7 @@ app.get('/api/proxy-download', async (req, res) => {
     } catch (err) { res.status(500).send("Download Error"); }
 });
 
-// Admin Analytics Endpoint (Today, Yesterday, Weekly, Monthly)
+// Admin Analytics Endpoint
 app.get('/api/admin/stats', (req, res) => {
     const now = Date.now();
     const oneDay = 24 * 60 * 60 * 1000;
