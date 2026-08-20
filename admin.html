@@ -3,7 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    
     <title>SnapSaveInsta - Analytics Admin Dashboard</title>
+    <!-- Favicon / Tab Logo -->
+<link rel="icon" type="image/png" href="/logo.png">
+<link rel="shortcut icon" type="image/png" href="/logo.png">
+<link rel="apple-touch-icon" href="/logo.png">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background: #f4f6f9; color: #333; }
@@ -34,14 +40,21 @@
         .refresh-btn { background: #3b82f6; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; }
 
         .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
-        .section-title { font-size: 20px; font-weight: bold; margin-bottom: 15px; color: #1e293b; border-left: 4px solid #3b82f6; padding-left: 10px; }
+        .section-title { font-size: 20px; font-weight: bold; margin-bottom: 15px; color: #1e293b; border-left: 4px solid #3b82f6; padding-left: 10px; display: flex; justify-content: space-between; align-items: center; }
 
+        /* Clickable Stat Cards */
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 35px; }
-        .stat-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-top: 4px solid #3b82f6; }
+        .stat-card { 
+            background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); 
+            border-top: 4px solid #3b82f6; cursor: pointer; transition: all 0.2s ease; position: relative;
+        }
+        .stat-card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+        .stat-card.active { border: 2px solid #3b82f6; border-top-width: 4px; background: #eff6ff; }
         .stat-card.downloads { border-top-color: #10b981; }
-        .stat-card h3 { font-size: 14px; color: #64748b; text-transform: uppercase; margin-bottom: 8px; }
+        .stat-card.downloads.active { border-color: #10b981; background: #ecfdf5; }
+        .stat-card h3 { font-size: 13px; color: #64748b; text-transform: uppercase; margin-bottom: 8px; }
         .stat-card .number { font-size: 28px; font-weight: 800; color: #0f172a; }
-        .stat-card .subtext { font-size: 12px; color: #94a3b8; margin-top: 5px; }
+        .stat-card .subtext { font-size: 12px; color: #3b82f6; margin-top: 5px; font-weight: 600; }
 
         /* Country Grid Section */
         .country-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin-bottom: 35px; }
@@ -64,6 +77,7 @@
         .badge-success { background: #d1fae5; color: #065f46; }
         .badge-country { background: #e0f2fe; color: #0369a1; }
         .loading { text-align: center; padding: 40px; font-size: 18px; color: #64748b; }
+        .active-filter-badge { background: #3b82f6; color: white; font-size: 13px; padding: 4px 12px; border-radius: 20px; font-weight: normal; }
     </style>
 </head>
 <body>
@@ -93,54 +107,75 @@
         </header>
 
         <div class="container">
-            <!-- Analytics Overview -->
-            <div class="section-title">Traffic & Usage Analytics</div>
+            <!-- Clickable Timeframe Buttons / Stat Cards -->
+            <div class="section-title">
+                <span>Select Analytics Filter</span>
+                <span id="activeFilterDisplay" class="active-filter-badge">Filter: Today Traffic</span>
+            </div>
+            
             <div class="stats-grid">
-                <div class="stat-card"><h3>Today Traffic</h3><div class="number" id="viewsToday">0</div><div class="subtext">Page Views</div></div>
-                <div class="stat-card downloads"><h3>Today Downloads</h3><div class="number" id="dlToday">0</div><div class="subtext">Successful Downloads</div></div>
-                <div class="stat-card"><h3>Yesterday Traffic</h3><div class="number" id="viewsYesterday">0</div><div class="subtext">Page Views</div></div>
-                <div class="stat-card downloads"><h3>Yesterday Downloads</h3><div class="number" id="dlYesterday">0</div><div class="subtext">Successful Downloads</div></div>
+                <div class="stat-card active" id="card_today_views" onclick="setStatFilter('today', 'views', 'Today Traffic')">
+                    <h3>Today Traffic</h3>
+                    <div class="number" id="viewsToday">0</div>
+                    <div class="subtext">Click to View Countries ➔</div>
+                </div>
+                <div class="stat-card downloads" id="card_today_dl" onclick="setStatFilter('today', 'downloads', 'Today Downloads')">
+                    <h3>Today Downloads</h3>
+                    <div class="number" id="dlToday">0</div>
+                    <div class="subtext">Click to View Countries ➔</div>
+                </div>
+                <div class="stat-card" id="card_yesterday_views" onclick="setStatFilter('yesterday', 'views', 'Yesterday Traffic')">
+                    <h3>Yesterday Traffic</h3>
+                    <div class="number" id="viewsYesterday">0</div>
+                    <div class="subtext">Click to View Countries ➔</div>
+                </div>
+                <div class="stat-card downloads" id="card_yesterday_dl" onclick="setStatFilter('yesterday', 'downloads', 'Yesterday Downloads')">
+                    <h3>Yesterday Downloads</h3>
+                    <div class="number" id="dlYesterday">0</div>
+                    <div class="subtext">Click to View Countries ➔</div>
+                </div>
+                <div class="stat-card" id="card_weekly_views" onclick="setStatFilter('weekly', 'views', 'This Week Traffic')">
+                    <h3>This Week Traffic</h3>
+                    <div class="number" id="viewsWeekly">0</div>
+                    <div class="subtext">Click to View Countries ➔</div>
+                </div>
+                <div class="stat-card downloads" id="card_weekly_dl" onclick="setStatFilter('weekly', 'downloads', 'This Week Downloads')">
+                    <h3>This Week Downloads</h3>
+                    <div class="number" id="dlWeekly">0</div>
+                    <div class="subtext">Click to View Countries ➔</div>
+                </div>
+                <div class="stat-card" id="card_monthly_views" onclick="setStatFilter('monthly', 'views', 'This Month Traffic')">
+                    <h3>This Month Traffic</h3>
+                    <div class="number" id="viewsMonthly">0</div>
+                    <div class="subtext">Click to View Countries ➔</div>
+                </div>
+                <div class="stat-card downloads" id="card_monthly_dl" onclick="setStatFilter('monthly', 'downloads', 'This Month Downloads')">
+                    <h3>This Month Downloads</h3>
+                    <div class="number" id="dlMonthly">0</div>
+                    <div class="subtext">Click to View Countries ➔</div>
+                </div>
             </div>
 
-            <!-- Country Wise Section -->
-            <div class="section-title">Traffic by Country (Click on Country to Filter)</div>
+            <!-- Country Breakdown Section for Selected Card -->
+            <div class="section-title">Country Wise Breakdown</div>
             <div class="country-grid" id="countryGrid">
-                <div class="loading">Loading Country Stats...</div>
+                <div class="loading">Select a Stat Card above to load countries...</div>
             </div>
 
-            <!-- Download Logs Table -->
-            <div class="section-title">Download Logs <span id="countryFilterLabel"></span></div>
+            <!-- Detailed Logs Table -->
+            <div class="section-title" id="tableTitle">Detailed Logs</div>
             <div class="table-card">
                 <table>
-                    <thead>
+                    <thead id="tableHeader">
                         <tr>
                             <th>Time</th>
                             <th>IP Address</th>
                             <th>Country</th>
-                            <th>Instagram URL</th>
-                            <th>Status</th>
+                            <th>Details</th>
                         </tr>
                     </thead>
-                    <tbody id="downloadsTableBody">
-                        <tr><td colspan="5" class="loading">Loading records...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Traffic Logs Table -->
-            <div class="section-title">Recent Visitors / Pageviews</div>
-            <div class="table-card">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Time</th>
-                            <th>IP Address</th>
-                            <th>Country</th>
-                            <th>User Agent</th>
-                        </tr>
-                    </thead>
-                    <tbody id="trafficTableBody">
-                        <tr><td colspan="4" class="loading">Loading traffic...</td></tr>
+                    <tbody id="logsTableBody">
+                        <tr><td colspan="4" class="loading">Loading logs...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -150,8 +185,10 @@
     <script>
         const ADMIN_ID = "mohali0990";
         const ADMIN_PASS = "mohmmadali@098";
-        let allTrafficData = [];
-        let allDownloadData = [];
+        
+        let rawData = { traffic: [], downloads: [] };
+        let activePeriod = 'today'; // today, yesterday, weekly, monthly
+        let activeType = 'views';    // views, downloads
         let selectedCountry = 'ALL';
 
         function handleLogin() {
@@ -178,89 +215,152 @@
                 document.getElementById('dlToday').innerText = data.stats.today.downloads;
                 document.getElementById('viewsYesterday').innerText = data.stats.yesterday.views;
                 document.getElementById('dlYesterday').innerText = data.stats.yesterday.downloads;
+                document.getElementById('viewsWeekly').innerText = data.stats.weekly.views;
+                document.getElementById('dlWeekly').innerText = data.stats.weekly.downloads;
+                document.getElementById('viewsMonthly').innerText = data.stats.monthly.views;
+                document.getElementById('dlMonthly').innerText = data.stats.monthly.downloads;
 
-                allTrafficData = data.traffic || [];
-                allDownloadData = data.downloads || [];
+                rawData.traffic = data.traffic || [];
+                rawData.downloads = data.downloads || [];
 
-                renderCountryGrid();
-                renderFilteredTables();
+                renderDashboardView();
 
             } catch (err) {
                 console.error("Dashboard Error:", err);
             }
         }
 
-        function renderCountryGrid() {
+        function setStatFilter(period, type, labelName) {
+            activePeriod = period;
+            activeType = type;
+            selectedCountry = 'ALL';
+
+            // Highlight active card
+            document.querySelectorAll('.stat-card').forEach(card => card.classList.remove('active'));
+            const cardKey = `card_${period}_${type === 'views' ? 'views' : 'dl'}`;
+            const targetCard = document.getElementById(cardKey);
+            if(targetCard) targetCard.classList.add('active');
+
+            document.getElementById('activeFilterDisplay').innerText = `Filter: ${labelName}`;
+            renderDashboardView();
+        }
+
+        function filterByTimeframe(logs, period) {
+            const now = new Date();
+            return logs.filter(log => {
+                const logTime = new Date(log.timestamp);
+                if (period === 'today') {
+                    return logTime.toDateString() === now.toDateString();
+                } else if (period === 'yesterday') {
+                    const yest = new Date();
+                    yest.setDate(now.getDate() - 1);
+                    return logTime.toDateString() === yest.toDateString();
+                } else if (period === 'weekly') {
+                    const weekAgo = new Date();
+                    weekAgo.setDate(now.getDate() - 7);
+                    return logTime >= weekAgo;
+                } else if (period === 'monthly') {
+                    const monthAgo = new Date();
+                    monthAgo.setDate(now.getDate() - 30);
+                    return logTime >= monthAgo;
+                }
+                return true;
+            });
+        }
+
+        function renderDashboardView() {
+            const baseData = activeType === 'views' ? rawData.traffic : rawData.downloads;
+            const timeFilteredData = filterByTimeframe(baseData, activePeriod);
+
+            // 1. Build Country Grid
             const countryCounts = {};
-            allTrafficData.forEach(log => {
+            timeFilteredData.forEach(log => {
                 const country = log.country || 'Unknown';
                 countryCounts[country] = (countryCounts[country] || 0) + 1;
             });
 
             const countryGrid = document.getElementById('countryGrid');
-            let html = `
-                <div class="country-card ${selectedCountry === 'ALL' ? 'active' : ''}" onclick="filterByCountry('ALL')">
+            let gridHtml = `
+                <div class="country-card ${selectedCountry === 'ALL' ? 'active' : ''}" onclick="selectCountry('ALL')">
                     <span class="country-name">🌍 All Countries</span>
-                    <span class="country-count">${allTrafficData.length}</span>
+                    <span class="country-count">${timeFilteredData.length}</span>
                 </div>
             `;
 
             for (const [country, count] of Object.entries(countryCounts)) {
-                html += `
-                    <div class="country-card ${selectedCountry === country ? 'active' : ''}" onclick="filterByCountry('${country}')">
+                gridHtml += `
+                    <div class="country-card ${selectedCountry === country ? 'active' : ''}" onclick="selectCountry('${country}')">
                         <span class="country-name">📌 ${country}</span>
                         <span class="country-count">${count}</span>
                     </div>
                 `;
             }
-            countryGrid.innerHTML = html;
+            countryGrid.innerHTML = gridHtml;
+
+            // 2. Render Table
+            renderLogsTable(timeFilteredData);
         }
 
-        function filterByCountry(country) {
+        function selectCountry(country) {
             selectedCountry = country;
-            document.getElementById('countryFilterLabel').innerText = country === 'ALL' ? '' : `(Filtered: ${country})`;
-            renderCountryGrid();
-            renderFilteredTables();
+            renderDashboardView();
         }
 
-        function renderFilteredTables() {
-            const filteredTraffic = selectedCountry === 'ALL' 
-                ? allTrafficData 
-                : allTrafficData.filter(log => (log.country || 'Unknown') === selectedCountry);
+        function renderLogsTable(timeFilteredData) {
+            const finalData = selectedCountry === 'ALL' 
+                ? timeFilteredData 
+                : timeFilteredData.filter(log => (log.country || 'Unknown') === selectedCountry);
 
-            const filteredDownloads = selectedCountry === 'ALL' 
-                ? allDownloadData 
-                : allDownloadData.filter(log => (log.country || 'Unknown') === selectedCountry);
+            document.getElementById('tableTitle').innerText = `${activeType === 'views' ? 'Traffic' : 'Download'} Logs (${selectedCountry})`;
 
-            // Populate Downloads Table
-            const dlBody = document.getElementById('downloadsTableBody');
-            if(filteredDownloads.length > 0) {
-                dlBody.innerHTML = filteredDownloads.map(log => `
+            const tableHeader = document.getElementById('tableHeader');
+            if(activeType === 'views') {
+                tableHeader.innerHTML = `
                     <tr>
-                        <td>${new Date(log.timestamp).toLocaleString()}</td>
-                        <td><code>${log.ip}</code></td>
-                        <td><span class="badge badge-country">${log.country || 'Unknown'}</span></td>
-                        <td><a href="${log.url}" target="_blank" style="color:#3b82f6;">${log.url.substring(0, 40)}...</a></td>
-                        <td><span style="color:#10b981; font-weight:bold;">Success</span></td>
+                        <th>Time</th>
+                        <th>IP Address</th>
+                        <th>Country</th>
+                        <th>User Agent</th>
                     </tr>
-                `).join('');
+                `;
             } else {
-                dlBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No downloads found for this country.</td></tr>';
+                tableHeader.innerHTML = `
+                    <tr>
+                        <th>Time</th>
+                        <th>IP Address</th>
+                        <th>Country</th>
+                        <th>Instagram Link</th>
+                        <th>Status</th>
+                    </tr>
+                `;
             }
 
-            // Populate Traffic Table
-            const tfBody = document.getElementById('trafficTableBody');
-            if(filteredTraffic.length > 0) {
-                tfBody.innerHTML = filteredTraffic.map(log => `
-                    <tr>
-                        <td>${new Date(log.timestamp).toLocaleString()}</td>
-                        <td><code>${log.ip}</code></td>
-                        <td><span class="badge badge-country">${log.country || 'Unknown'}</span></td>
-                        <td><span style="font-size:12px; color:#64748b;">${(log.userAgent || '').substring(0, 60)}...</span></td>
-                    </tr>
-                `).join('');
+            const tbody = document.getElementById('logsTableBody');
+            if(finalData.length > 0) {
+                tbody.innerHTML = finalData.map(log => {
+                    if(activeType === 'views') {
+                        return `
+                            <tr>
+                                <td>${new Date(log.timestamp).toLocaleString()}</td>
+                                <td><code>${log.ip}</code></td>
+                                <td><span class="badge badge-country">${log.country || 'Unknown'}</span></td>
+                                <td><span style="font-size:12px; color:#64748b;">${(log.userAgent || '').substring(0, 60)}...</span></td>
+                            </tr>
+                        `;
+                    } else {
+                        return `
+                            <tr>
+                                <td>${new Date(log.timestamp).toLocaleString()}</td>
+                                <td><code>${log.ip}</code></td>
+                                <td><span class="badge badge-country">${log.country || 'Unknown'}</span></td>
+                                <td><a href="${log.url}" target="_blank" style="color:#3b82f6;">${log.url ? log.url.substring(0, 40) : 'Link'}...</a></td>
+                                <td><span style="color:#10b981; font-weight:bold;">Success</span></td>
+                            </tr>
+                        `;
+                    }
+                }).join('');
             } else {
-                tfBody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No traffic logs found for this country.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 20px;">No logs found for this filter.</td></tr>';
             }
         }
     </script>
