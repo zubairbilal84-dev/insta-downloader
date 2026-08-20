@@ -187,8 +187,8 @@
         const ADMIN_PASS = "mohmmadali@098";
         
         let rawData = { traffic: [], downloads: [] };
-        let activePeriod = 'today'; // today, yesterday, weekly, monthly
-        let activeType = 'views';    // views, downloads
+        let activePeriod = 'today';
+        let activeType = 'views';
         let selectedCountry = 'ALL';
 
         function handleLogin() {
@@ -211,7 +211,6 @@
                 const res = await fetch('/api/admin/stats');
                 const data = await res.json();
 
-                // Assign Numbers
                 if(data.stats) {
                     document.getElementById('viewsToday').innerText = data.stats.today ? data.stats.today.views : 0;
                     document.getElementById('dlToday').innerText = data.stats.today ? data.stats.today.downloads : 0;
@@ -275,7 +274,6 @@
             const baseData = activeType === 'views' ? rawData.traffic : rawData.downloads;
             const timeFilteredData = filterByTimeframe(baseData, activePeriod);
 
-            // 1. Build Country Grid
             const countryCounts = {};
             timeFilteredData.forEach(log => {
                 const country = log.country || 'Unknown';
@@ -300,7 +298,6 @@
             }
             countryGrid.innerHTML = gridHtml;
 
-            // 2. Render Table Logs
             renderLogsTable(timeFilteredData);
         }
 
