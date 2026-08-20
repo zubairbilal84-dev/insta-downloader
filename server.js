@@ -48,7 +48,7 @@ app.post('/api/track-view', (req, res) => {
     res.json({ status: 'ok' });
 });
 
-// Download API Endpoint
+// Download API Endpoint (Updated for New RapidAPI Endpoint)
 app.post('/api/download', async (req, res) => {
     const { url } = req.body;
     const clientIp = req.headers['cf-connecting-ip'] || req.headers['x-forwarded-for'] || req.socket.remoteAddress;
@@ -60,11 +60,11 @@ app.post('/api/download', async (req, res) => {
     try {
         const options = {
             method: 'GET',
-            url: 'https://fast-instagram-downloader.p.rapidapi.com/get-info',
+            url: 'https://instagram-downloader-download-instagram-stories-videos4.p.rapidapi.com/convert',
             params: { url: url },
             headers: {
-                'x-rapidapi-key': process.env.RAPIDAPI_KEY || 'YOUR_RAPIDAPI_KEY',
-                'x-rapidapi-host': 'fast-instagram-downloader.p.rapidapi.com'
+                'x-rapidapi-key': process.env.RAPIDAPI_KEY || '73643558b0mshe813269a1356d97p1bac4cjsn4ddabdbf869b',
+                'x-rapidapi-host': 'instagram-downloader-download-instagram-stories-videos4.p.rapidapi.com'
             }
         };
 
