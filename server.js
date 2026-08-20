@@ -59,6 +59,7 @@ async function verifyTurnstile(token, ip) {
         }));
         return res.data.success;
     } catch(err) {
+        console.error("Turnstile Verification Error:", err.message);
         return false;
     }
 }

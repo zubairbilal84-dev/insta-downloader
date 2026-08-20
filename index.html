@@ -252,6 +252,11 @@
                 });
                 const data = await res.json();
 
+                // Reset Turnstile token after verification attempt
+                if (window.turnstile) {
+                    window.turnstile.reset();
+                }
+
                 if(data.error) {
                     resultDiv.innerHTML = `<p style="color:red; margin-top:15px; font-weight:bold;">${data.error}</p>`;
                     return;
@@ -287,6 +292,7 @@
                     resultDiv.innerHTML = '<p style="color:red; margin-top:15px; font-weight:bold;">Unable to fetch video. Please check the public Instagram link.</p>';
                 }
             } catch(err) {
+                if (window.turnstile) window.turnstile.reset();
                 resultDiv.innerHTML = '<p style="color:red; margin-top:15px; font-weight:bold;">Server Error! Please try again later.</p>';
             }
         }
